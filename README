@@ -1,0 +1,63 @@
+This is a script to send emails to a list of emails
+
+==Steps to setup:
+
+1. Setup smtp configuration file
+
+$ mkdir ~/.email_sender
+$ open anc_mailer.yml
+
+---
+production:
+  address: 'smtp.assemblea.cat'
+  user_name: 'name'
+  password: "password"
+  domain: 'assemblea.cat'
+
+2. Open app/mailer/anc.rb and define the mail you want to send
+
+  envia(:memorial_companys_2012, mails) do |options|
+    options.subject = "Homenatge a Lluís Companys a Sabadell"
+  end
+
+3. Write the mail body into views/anc_mailer/memorial_companys_2012.haml
+
+  The envia method first parameter value should be the same as the name of the body file
+
+4. The second parameter of envia method should be an array of emails
+
+  mails = %w(list of mails)
+
+  You can write a method to load emails from an external source such as an api or a csv file
+
+  mails = load_array_from_api_or_other_source
+
+==Attaching files
+
+To attach files into a mailer just copy the file into "public/adjunts/anc" folder.
+
+Go to email definition
+
+  envia(:memorial_companys_2012, mails) do |options|
+    options.subject = "Homenatge a Lluís Companys a Sabadell"
+    options.attachments['myattachment.jpg'] = 'myattachment.jpg'
+  end
+
+==Testing emails before sending
+
+anc.rb file contains two lines to choose between production and test
+
+#AncMailer.use_production
+AncMailer.use_test
+
+Comment production line and run mailcatcher and open your favourite browser, then run the script and look if the email is ok
+
+$ mailcatcher
+
+==> smtp://127.0.0.1:1025
+==> http://127.0.0.1:1080
+*** MailCatcher now runs as a daemon by default. Go to the web interface to quit.
+
+$ open http://127.0.0.1:1080
+
+$ ruby app/mailers/anc.rb

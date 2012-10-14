@@ -1,0 +1,65 @@
+Aquest script serviex per enviar correus a una llista de correus
+
+==Passos per configurar-lo:
+
+1. Configura el fitxer que conté la configuració del servidor d'enviament smtp
+
+$ mkdir ~/.email_sender
+$ open anc_mailer.yml
+
+---
+production:
+  address: 'smtp.assemblea.cat'
+  user_name: 'nom'
+  password: "contrassenya"
+  domain: 'assemblea.cat'
+
+2. Obre el fitxer "app/mailer/anc.rb" i defineix el mail que vols enviar
+
+  envia(:memorial_companys_2012, mails) do |options|
+    options.subject = "Homenatge a Lluís Companys a Sabadell"
+  end
+
+3. Redacta el cos del missatge a views/anc_mailer/memorial_companys_2012.haml
+
+  El valor del primer parametre del metode "envia" ha de coincidir amb el nom
+  del fitxer que conté el cos del missatge, igual que a l'exemple
+
+
+4. El segon parametre del mètode envia és un array de correus
+
+  mails = %w(list of mails)
+
+  Es pot definir un mètode per carregar un llistat de correus procedent d'una font externa com ara una api o un fitxer csv
+
+  mails = load_array_from_api_or_other_source
+
+==Adjuntar fitxers
+
+Per adjuntar fitxers al mailer només cal que copiis el fitxer a la carpeta "public/adjunts/anc".
+
+A la definició del mailer afegir que vols adjuntar un fitxer
+
+  envia(:memorial_companys_2012, mails) do |options|
+    options.subject = "Homenatge a Lluís Companys a Sabadell"
+    options.attachments['el_meu_adjunt.jpg'] = 'el_meu_adjunt.jpg'
+  end
+
+==Provar els correus abans d'enviar-los
+
+El fitxer anc.rb conté dues linies per triar entre producció i test
+
+#AncMailer.use_production
+AncMailer.use_test
+
+Comenta la linia de producció com a l'exemple, inicia el mailcatcher, obre el teu navegador preferit, inicia l'script i mira que el correu que s'envia sigui l'esperat.
+
+  $ mailcatcher
+
+  ==> smtp://127.0.0.1:1025
+  ==> http://127.0.0.1:1080
+  *** MailCatcher now runs as a daemon by default. Go to the web interface to quit.
+
+  $ open http://127.0.0.1:1080
+
+  $ ruby app/mailers/anc.rb
